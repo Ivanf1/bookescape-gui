@@ -9,12 +9,16 @@ import java.util.Properties;
 public final class PropertyProducer {
   private static Properties properties;
   
+  /**
+   * Reads content of {@code application.properties} file.
+   */
   public static void loadProperties() {
     if (properties != null) return;
     
     properties = new Properties();
     String rootPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
     String applicationConfigPath = rootPath + "application.properties";
+    
     
     InputStream stream;
     try {

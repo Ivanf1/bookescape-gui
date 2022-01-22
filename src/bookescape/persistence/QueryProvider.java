@@ -1,4 +1,4 @@
-package bookescape.gui;
+package bookescape.persistence;
 
 import java.util.List;
 

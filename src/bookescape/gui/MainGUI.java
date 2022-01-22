@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 
 import bookescape.persistence.ArbitraryQuery;
+import bookescape.persistence.QueryProvider;
 
 public class MainGUI {
 

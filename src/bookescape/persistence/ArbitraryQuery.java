@@ -2,9 +2,6 @@ package bookescape.persistence;
 
 import java.sql.*;
 import java.util.List;
-
-import bookescape.gui.QueryProvider;
-
 import java.util.ArrayList;
 
 public class ArbitraryQuery implements QueryProvider {
@@ -12,7 +9,12 @@ public class ArbitraryQuery implements QueryProvider {
   public ArbitraryQuery() {
   }
   
-  public static List<List<String>> executeArbitraryQuery(String query) {
+  /**
+   * Executes an arbitrary query. First row of result is
+   * a list of column names
+   * @returns @{@link List} of result rows
+   */
+  private static List<List<String>> executeArbitraryQuery(String query) {
     Connection connection = DatabaseDriverConnection.getConnection();
     try {
       Statement s = connection.createStatement();
@@ -23,7 +25,7 @@ public class ArbitraryQuery implements QueryProvider {
 
       List<List<String>> result = new ArrayList<>();
       
-      // make heading
+      // make heading with column names
       List<String> heading = new ArrayList<>();
       for (int i = 1; i <= columnCount; i++) {
         heading.add(rsMetadata.getColumnLabel(i));
@@ -40,7 +42,6 @@ public class ArbitraryQuery implements QueryProvider {
       }
       
       return result;
-      
     } catch (SQLException e) {
       e.printStackTrace();
     }

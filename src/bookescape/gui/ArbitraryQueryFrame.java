@@ -2,6 +2,9 @@ package bookescape.gui;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import bookescape.persistence.QueryProvider;
+
 import java.awt.*;
 
 import java.util.List;
