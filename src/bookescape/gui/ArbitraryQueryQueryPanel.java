@@ -10,6 +10,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   
   private JTextArea queryInput;
   private JButton runQueryBtn;
+  private JButton runSelectedQueryBtn;
   
   private ArbitraryQueryFrame parent;
   
@@ -21,14 +22,23 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   private void initLayout() {
     this.queryInput = new JTextArea(20, 100);
     this.runQueryBtn = new JButton("Esegui");
+    this.runSelectedQueryBtn = new JButton("Esegui selezione");
     
     this.runQueryBtn.addActionListener((e) -> {
       parent.executeQuery(queryInput.getText());
+    });
+
+    this.runSelectedQueryBtn.addActionListener((e) -> {
+      String selectedText = queryInput.getSelectedText();
+      if (selectedText != null) {
+        parent.executeQuery(selectedText);
+      }
     });
     
     JPanel upperContainer = new JPanel();
     upperContainer.add(this.queryInput);
     upperContainer.add(this.runQueryBtn);
+    upperContainer.add(this.runSelectedQueryBtn);
     
     this.setLayout(new BorderLayout());
     this.add(upperContainer, BorderLayout.NORTH);
