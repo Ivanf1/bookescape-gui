@@ -14,7 +14,7 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
   
   private JTable resultTable;
   private DefaultTableModel dtm;
-  JScrollPane tableSP;
+  private JScrollPane tableSP;
   
   public ArbitraryQueryQueryResultPanel() {
     initLayout();
