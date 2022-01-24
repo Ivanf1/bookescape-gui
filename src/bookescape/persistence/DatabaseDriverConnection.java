@@ -14,7 +14,6 @@ public final class DatabaseDriverConnection {
   public static Connection getConnection() {
     if (connection == null) {
       try {
-        PropertyProducer.loadProperties();
         dbUrl = PropertyProducer.getProperty("DB_URL");
         user = PropertyProducer.getProperty("USER");
         pass = PropertyProducer.getProperty("PASS");
