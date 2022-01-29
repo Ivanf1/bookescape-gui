@@ -52,6 +52,8 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
 
     this.cancelBtn = new JButton("Annulla");
     this.confirmBtn = new JButton("Conferma");
+    this.cancelBtn.setMargin(new Insets(5, 20, 5, 20));
+    this.confirmBtn.setMargin(new Insets(5, 20, 5, 20));
     JPanel buttonContainer = new JPanel();
     buttonContainer.setLayout(new FlowLayout(FlowLayout.RIGHT));
     buttonContainer.add(cancelBtn);

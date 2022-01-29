@@ -22,7 +22,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   }
   
   private void initLayout() {
-    this.queryInput = new JTextArea(24, 142);
+    this.queryInput = new JTextArea(24, 165);
     this.runQueryBtn = new JButton("Esegui");
     this.runSelectedQueryBtn = new JButton("Esegui selezione");
     
@@ -45,25 +45,20 @@ public class ArbitraryQueryQueryPanel extends JPanel {
     upperContainer.setLayout(new GridBagLayout());
     
     JPanel buttonContainer = new JPanel();
-    buttonContainer.setLayout(new GridLayout(2, 1));
+    buttonContainer.setLayout(new FlowLayout(FlowLayout.RIGHT));
     this.runQueryBtn.setMargin(new Insets(5, 20, 5, 20));
     this.runSelectedQueryBtn.setMargin(new Insets(5, 20, 5, 20));
     buttonContainer.add(this.runQueryBtn);
     buttonContainer.add(this.runSelectedQueryBtn);
     
-    GridBagConstraints c = new GridBagConstraints();
-    c.gridx = 0;
-    c.gridy = 0;
-    c.ipadx = 50;
-    upperContainer.add(this.queryInputScrollPane, c);
+    this.setLayout(new BorderLayout());
     
-    c.gridx = 1;
-    c.gridy = 0;
-    c.weightx = 0.5;
-    c.gridheight = 2;
-    upperContainer.add(buttonContainer, c);
+    upperContainer.add(this.queryInputScrollPane);
+    
+    upperContainer.add(buttonContainer);
 
-    this.add(upperContainer);
+    this.add(upperContainer, BorderLayout.CENTER);
+    this.add(buttonContainer, BorderLayout.SOUTH);
   }
 
 }
