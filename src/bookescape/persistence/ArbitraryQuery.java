@@ -50,7 +50,7 @@ public class ArbitraryQuery implements QueryProvider {
     }
     return null;
   }
-  
+
   /**
    * Executes a delete query
    */
@@ -59,8 +59,9 @@ public class ArbitraryQuery implements QueryProvider {
     Connection connection = DatabaseDriverConnection.getConnection();
     try {
       List<String> primaryKeys = getPrimaryKeysFromTable(connection, tableName);
-      if (primaryKeys == null) return;
-      
+      if (primaryKeys == null)
+        return;
+
       // create a template query with where clause
       String query = "DELETE FROM " + tableName + " WHERE ";
       List<String> preparedKeys = new ArrayList<>();
@@ -68,7 +69,7 @@ public class ArbitraryQuery implements QueryProvider {
       for (String primaryKey : primaryKeys) {
         preparedKeys.add(primaryKey + " = ?");
       }
-      
+
       String whereClause = String.join(" AND ", preparedKeys);
       query += whereClause;
 
@@ -81,7 +82,7 @@ public class ArbitraryQuery implements QueryProvider {
       }
 
       s.executeUpdate();
-      
+
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -95,11 +96,12 @@ public class ArbitraryQuery implements QueryProvider {
     Connection connection = DatabaseDriverConnection.getConnection();
     try {
       List<String> primaryKeys = getPrimaryKeysFromTable(connection, tableName);
-      if (primaryKeys == null) return;
-      
+      if (primaryKeys == null)
+        return;
+
       // create a template query
       String query = "UPDATE " + tableName;
-      
+
       // add set clause with columns to update
       List<String> preparedSets = new ArrayList<>();
       for (String columnToUpdate : columnsToUpdate) {
@@ -130,14 +132,14 @@ public class ArbitraryQuery implements QueryProvider {
       for (int j = 0; j < primaryKeys.size(); j++, i++) {
         s.setString(i + 1, rowToUpdate.get(primaryKeys.get(j)));
       }
-      
+
       s.executeUpdate();
-      
+
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
-  
+
   /**
    * 
    * @return List of primary keys for table {@code tableName}
@@ -147,7 +149,8 @@ public class ArbitraryQuery implements QueryProvider {
     DatabaseMetaData meta = connection.getMetaData();
     try (ResultSet tables = meta.getTables(null, null, tableName, new String[] { "TABLE" })) {
 
-      if (!tables.next()) return null;
+      if (!tables.next())
+        return null;
 
       String catalog = tables.getString("TABLE_CAT");
       String schema = tables.getString("TABLE_SCHEM");
@@ -161,8 +164,25 @@ public class ArbitraryQuery implements QueryProvider {
     }
   }
 
+  private void executeQueryNoResult(String query) {
+    Connection connection = DatabaseDriverConnection.getConnection();
+    try {
+      PreparedStatement s = connection.prepareStatement(query);
+      s.execute(query);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
   @Override
   public List<List<String>> executeQuery(String query) {
+    String lowerCaseQueryIncipit = query.substring(0, 10).toLowerCase();
+    if (lowerCaseQueryIncipit.startsWith("create") 
+        || lowerCaseQueryIncipit.startsWith("insert")
+        || lowerCaseQueryIncipit.startsWith("update")) {
+      executeQueryNoResult(query);
+      return null;
+    }
     return executeArbitraryQuery(query);
   }
 
@@ -170,10 +190,6 @@ public class ArbitraryQuery implements QueryProvider {
   public List<List<String>> executeQueryOnTable(String tableName) {
     String query = "SELECT * FROM " + tableName + ";";
     return executeArbitraryQuery(query);
-  }
-
-  public static void printList(List<List<String>> list) {
-    list.stream().forEach(l -> l.stream().forEach((s) -> System.out.println(s)));
   }
 
 }

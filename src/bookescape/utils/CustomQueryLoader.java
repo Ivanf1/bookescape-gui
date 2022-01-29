@@ -9,7 +9,7 @@ import java.util.List;
 
 import bookescape.persistence.CustomQuery;
 
-public class CustomQueryLoader {
+public class CustomQueryLoader implements ICustomQueryProducer {
   public static List<CustomQuery> readFromInputStream() {
     ClassLoader classLoader = CustomQueryLoader.class.getClassLoader();
     InputStream inputStream = classLoader.getResourceAsStream("queries.txt");
@@ -20,6 +20,16 @@ public class CustomQueryLoader {
       String comment = "";
       String query = "";
       while ((line = br.readLine()) != null) {
+        // check if end of query
+        if (line.equals("==")) {
+          // make custom query
+          CustomQuery c = new CustomQuery(comment, query);
+          queryList.add(c);
+          comment = "";
+          query = "";
+          continue;
+        }
+
         // skip empty lines
         if (line.equals("")) continue;
 
@@ -27,16 +37,7 @@ public class CustomQueryLoader {
         if (line.substring(0, 2).equals("--")) {
           comment += line + "\n";
         } else {
-          query += line + "\n";
-        }
-        
-        // check if end of query
-        if (line.charAt(line.length() - 1) == ';') {
-          // make custom query
-          CustomQuery c = new CustomQuery(comment, query);
-          queryList.add(c);
-          comment = "";
-          query = "";
+          query += line + " \n";
         }
       }
       return queryList;
@@ -44,6 +45,11 @@ public class CustomQueryLoader {
       e.printStackTrace();
     }
     return null;
+  }
+  
+  @Override
+  public List<CustomQuery> getCustomQueries() {
+    return readFromInputStream();
   }
 
 }

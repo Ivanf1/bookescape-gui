@@ -22,7 +22,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   }
   
   private void initLayout() {
-    this.queryInput = new JTextArea(24, 165);
+    this.queryInput = new JTextArea(24, 140);
     this.runQueryBtn = new JButton("Esegui");
     this.runSelectedQueryBtn = new JButton("Esegui selezione");
     
@@ -30,7 +30,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
       String queryString = "";
       // skip comment lines
       for (String line : queryInput.getText().split("\\n")) {
-        if (!line.substring(0, 2).equals("--")) {
+        if (!line.equals("") && !line.substring(0, 2).equals("--")) {
           queryString += line;
         }
       }
@@ -66,6 +66,10 @@ public class ArbitraryQueryQueryPanel extends JPanel {
 
     this.add(upperContainer, BorderLayout.CENTER);
     this.add(buttonContainer, BorderLayout.SOUTH);
+  }
+  
+  public void setQueryInput(String query) {
+    this.queryInput.setText(query);
   }
 
 }

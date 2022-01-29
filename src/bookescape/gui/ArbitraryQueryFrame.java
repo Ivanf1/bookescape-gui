@@ -3,8 +3,10 @@ package bookescape.gui;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import bookescape.persistence.CustomQuery;
 import bookescape.persistence.IDatabaseInfoProducer;
 import bookescape.persistence.QueryProvider;
+import bookescape.utils.ICustomQueryProducer;
 
 import java.awt.*;
 
@@ -12,22 +14,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame {
+public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame, ICustomQueryFrame {
   private static final long serialVersionUID = -5148352205350265400L;
   
   private ArbitraryQueryQueryPanel queryPanel;
   private ArbitraryQueryQueryResultPanel resultPanel;
   private DatabaseInfoPanel databaseInfoPanel;
+  private CustomQueryPanel customQueryPanel;
   private QueryProvider queryProvider;
   private IDatabaseInfoProducer databaseInfoProducer;
+  private ICustomQueryProducer customQueryProducer;
   private JPanel container;
 
-  public ArbitraryQueryFrame(QueryProvider queryProvider, IDatabaseInfoProducer databaseInfoProducer) {
+  public ArbitraryQueryFrame(QueryProvider queryProvider, IDatabaseInfoProducer databaseInfoProducer, ICustomQueryProducer customQueryProducer) {
     this.queryProvider = queryProvider;
     this.databaseInfoProducer = databaseInfoProducer;
+    this.customQueryProducer = customQueryProducer;
     this.resultPanel = new ArbitraryQueryQueryResultPanel(this);
     this.queryPanel = new ArbitraryQueryQueryPanel(this);
     this.databaseInfoPanel = new DatabaseInfoPanel(this);
+    this.customQueryPanel = new CustomQueryPanel(this);
     
     initLayout();
   }
@@ -43,6 +49,11 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
     c.ipady = 20;
     container.add(databaseInfoPanel, c);
 
+    c.gridx = 2;
+    c.gridy = 0;
+    c.ipady = 20;
+    container.add(customQueryPanel, c);
+
     c.gridx = 1;
     c.gridy = 0;
     c.fill = GridBagConstraints.BOTH;
@@ -51,7 +62,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
 
     c.gridx = 0;
     c.gridy = 1;
-    c.gridwidth = 2;
+    c.gridwidth = 3;
     container.add(resultPanel, c);
 
     this.setLayout(new GridLayout());
@@ -64,8 +75,10 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
   @Override
   public void executeQuery(String query) {
     List<List<String>> res = queryProvider.executeQuery(query);
-    resultPanel.updateResultTable(res);
     resultPanel.updateTableName(null);
+    if (res != null) {
+      resultPanel.updateResultTable(res);
+    }
   }
   
   @Override
@@ -90,5 +103,14 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
   public List<String> getDatabaseInfo() {
     return databaseInfoProducer.getInfo();
   }
+
+  @Override
+  public List<CustomQuery> getCustomQuery() {
+    return customQueryProducer.getCustomQueries();
+  }
   
+  @Override
+  public void executeCustomQuery(String query) {
+    queryPanel.setQueryInput(query);
+  }
 }

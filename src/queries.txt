@@ -1,8 +1,102 @@
--- nice
-select *
-from libro;
+-- Selezione ordinata su un attributo di una tabella con condizioni AND e OR
+--
+-- Titolo, descrizione, totale voti e data pubblicazione dei libri che sono stati pubblicati
+-- prima del 01/05/2021 con più di 10 voti o pubblicati dopo il 01/01/2020 con più di 30 voti
+-- in ordine ascendente per numero di voti.
+SELECT titolo, descrizione, totale_voti, data_pub
+FROM libro
+WHERE (data_pub < "2012-05-01" AND totale_voti > 10)
+       OR (data_pub > "2020-01-01" AND totale_voti > 30)
+ORDER BY totale_voti;
+==
 
--- hello
-select *
-from utente
-where u.id = 1;
+-- Selezione su due o più tabelle con condizioni
+--
+-- Titolo di tutti i libri appartenenti al genere Romanzi e Letterature
+-- pubblicati dal 2016 in poi.
+SELECT titolo
+FROM libro l, appartenenza a, genere g
+WHERE l.isbn_13 = a.id_libro
+      AND g.id = a.id_genere
+      AND g.nome = "Romanzi e Letterature"
+      AND l.data_pub > "2016-01-01";
+==
+
+-- Selezione aggregata su tutti i valori
+--
+-- Estrarre il numero di Club del Libro.
+SELECT count(*)
+FROM club_libro;
+==
+
+-- Selezione aggregata su raggruppamenti
+--
+-- Per ogni utente elencare il numero e la media dei voti dati
+-- in ordine decrescente per la media dei voti.
+SELECT count(*) as num_voti, avg(v.voto) as media_voto, u.nome, u.cognome, u.id
+FROM votazione v
+    JOIN utente u ON u.id = v.id_utente
+GROUP BY u.id, u.nome, u.cognome
+ORDER BY media_voto DESC;
+==
+
+-- Selezione aggregata su raggruppamenti con condizioni
+--
+-- Nome, Cognome e numero di libri letti di tutti gli utenti
+-- che hanno letto più di 10 libri del genere Romanzi e Letterature.
+SELECT u.nome, u.cognome, count(*) as num_libri_letti
+FROM utente u
+    JOIN letto ON u.id = letto.id_utente
+    JOIN libro l ON letto.id_libro = l.isbn_13
+    JOIN appartenenza a ON a.id_libro = l.isbn_13
+    JOIN genere g ON a.id_genere = g.id
+WHERE g.nome = "Romanzi e Letterature"
+GROUP BY u.nome, u.cognome
+HAVING num_libri_letti > 10;
+==
+
+-- Selezione aggregata su raggruppamenti con condizioni che 
+-- includono un'altra funzione di raggruppamento
+--
+-- Elencare gli utenti che hanno letto il maggior numero di libri.
+CREATE VIEW libri_letti_per_utente_v as
+SELECT u.id, u.nome, u.cognome, count(*) as num_libri_letti
+FROM utente u, letto l
+WHERE u.id = l.id_utente
+GROUP BY u.id, u.nome, u.cognome;
+
+SELECT *
+FROM libri_letti_per_utente_v
+WHERE num_libri_letti = (SELECT max(num_libri_letti)
+                        FROM libri_letti_per_utente_v);
+==
+
+-- Selezione con operazioni sugli insiemi
+--
+-- Estrarre il numero di eventi sia Virtuali che In Persona organizzati da ogni
+-- Club del Libro
+SELECT count(*) as num_eventi, x.id_club_libro
+FROM (SELECT count(*) as num_eventi, ev.id_club_libro
+      FROM evento_virtuale ev
+      GROUP BY ev.id_club_libro
+      UNION ALL
+      SELECT count(*) as num_eventi, eip.id_club_libro
+      FROM evento_in_persona eip
+      GROUP BY eip.id_club_libro
+      ) x
+GROUP BY x.id_club_libro;
+==
+
+-- Selezione con l'uso appropriato del doppio not Exists
+--
+-- Nome, Cognome e Username degli utenti che hanno commentato
+-- tutti i libri
+SELECT u.nome, u.cognome, u.username
+FROM utente u
+WHERE NOT EXISTS (SELECT *
+                  FROM libro l
+                  WHERE NOT EXISTS (SELECT *
+                                    FROM commento c
+                                    WHERE c.id_utente = u.id
+                                    AND c.id_libro = l.isbn_13));
+==
