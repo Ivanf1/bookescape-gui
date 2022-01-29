@@ -57,6 +57,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
     this.setLayout(new GridLayout());
     this.add(container);
     this.setSize(1600, 980);
+    this.setLocationRelativeTo(null);
     this.setVisible(true);
   }
   
