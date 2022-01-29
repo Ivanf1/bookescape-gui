@@ -52,6 +52,13 @@ public class ArbitraryQuery implements QueryProvider {
   public List<List<String>> executeQuery(String query) {
     return executeArbitraryQuery(query);
   }
+
+  @Override
+  public List<List<String>> executeQueryOnTable(String tableName) {
+    String query = "SELECT * FROM " + tableName + ";";
+    return executeArbitraryQuery(query);
+  }
+
   
   public static void printList(List<List<String>> list) {
     list.stream().forEach(l -> l.stream().forEach((s) -> System.out.println(s)));

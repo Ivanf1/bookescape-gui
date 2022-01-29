@@ -1,6 +1,8 @@
 package bookescape.persistence;
 
-import java.sql.*;
+import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 import bookescape.config.PropertyProducer;
 
@@ -26,5 +28,6 @@ public final class DatabaseDriverConnection {
     }
     return connection;
   }
+  
 
 }

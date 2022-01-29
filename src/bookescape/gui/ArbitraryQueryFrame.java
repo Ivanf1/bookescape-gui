@@ -10,7 +10,7 @@ import java.awt.*;
 
 import java.util.List;
 
-public class ArbitraryQueryFrame extends JFrame {
+public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame {
   private static final long serialVersionUID = -5148352205350265400L;
   
   private ArbitraryQueryQueryPanel queryPanel;
@@ -58,11 +58,19 @@ public class ArbitraryQueryFrame extends JFrame {
     this.setVisible(true);
   }
   
+  @Override
   public void executeQuery(String query) {
     List<List<String>> res = queryProvider.executeQuery(query);
     resultPanel.updateResultTable(res);
   }
   
+  @Override
+  public void executeQueryOnTable(String tableName) {
+    List<List<String>> res = queryProvider.executeQueryOnTable(tableName);
+    resultPanel.updateResultTable(res);
+  }
+  
+  @Override
   public List<String> getDatabaseInfo() {
     return databaseInfoProducer.getInfo();
   }

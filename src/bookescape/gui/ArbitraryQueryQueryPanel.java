@@ -14,9 +14,9 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   private JButton runSelectedQueryBtn;
   private JScrollPane queryInputScrollPane;
   
-  private ArbitraryQueryFrame parent;
+  private IArbitraryQueryFrame parent;
   
-  public ArbitraryQueryQueryPanel(ArbitraryQueryFrame parent) {
+  public ArbitraryQueryQueryPanel(IArbitraryQueryFrame parent) {
     this.parent = parent;
     initLayout();
   }
