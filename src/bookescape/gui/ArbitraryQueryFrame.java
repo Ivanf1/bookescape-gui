@@ -9,6 +9,7 @@ import bookescape.persistence.QueryProvider;
 import java.awt.*;
 
 import java.util.List;
+import java.util.Map;
 
 public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame {
   private static final long serialVersionUID = -5148352205350265400L;
@@ -23,7 +24,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
   public ArbitraryQueryFrame(QueryProvider queryProvider, IDatabaseInfoProducer databaseInfoProducer) {
     this.queryProvider = queryProvider;
     this.databaseInfoProducer = databaseInfoProducer;
-    this.resultPanel = new ArbitraryQueryQueryResultPanel();
+    this.resultPanel = new ArbitraryQueryQueryResultPanel(this);
     this.queryPanel = new ArbitraryQueryQueryPanel(this);
     this.databaseInfoPanel = new DatabaseInfoPanel(this);
     
@@ -62,12 +63,20 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
   public void executeQuery(String query) {
     List<List<String>> res = queryProvider.executeQuery(query);
     resultPanel.updateResultTable(res);
+    resultPanel.updateTableName(null);
   }
   
   @Override
   public void executeQueryOnTable(String tableName) {
     List<List<String>> res = queryProvider.executeQueryOnTable(tableName);
     resultPanel.updateResultTable(res);
+    resultPanel.updateTableName(tableName);
+  }
+  
+  @Override
+  public void executeDeleteQuery(String tableName, Map<String, String> rowToDelete) {
+    queryProvider.executeDeleteQuery(tableName, rowToDelete);
+    executeQueryOnTable(tableName);
   }
   
   @Override
