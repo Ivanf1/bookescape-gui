@@ -3,6 +3,7 @@ package bookescape.persistence;
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.ArrayList;
 
 public class ArbitraryQuery implements QueryProvider {
@@ -86,6 +87,57 @@ public class ArbitraryQuery implements QueryProvider {
     }
   }
 
+  /**
+   * Executes an update query
+   */
+  @Override
+  public void executeUpdateQuery(String tableName, Map<String, String> rowToUpdate, Set<String> columnsToUpdate) {
+    Connection connection = DatabaseDriverConnection.getConnection();
+    try {
+      List<String> primaryKeys = getPrimaryKeysFromTable(connection, tableName);
+      if (primaryKeys == null) return;
+      
+      // create a template query
+      String query = "UPDATE " + tableName;
+      
+      // add set clause with columns to update
+      List<String> preparedSets = new ArrayList<>();
+      for (String columnToUpdate : columnsToUpdate) {
+        preparedSets.add(columnToUpdate + " = ?");
+      }
+      String setClause = String.join(", ", preparedSets);
+      query += " SET " + setClause;
+
+      // add where clause with primary keys
+      List<String> preparedKeys = new ArrayList<>();
+      for (String primaryKey : primaryKeys) {
+        preparedKeys.add(primaryKey + " = ?");
+      }
+      String whereClause = String.join(" AND ", preparedKeys);
+      query += " WHERE " + whereClause;
+
+      // create prepared statement
+      PreparedStatement s = connection.prepareStatement(query);
+
+      // set values for set clause
+      int i = 0;
+      for (String columnToUpdate : columnsToUpdate) {
+        s.setString(i + 1, rowToUpdate.get(columnToUpdate));
+        i++;
+      }
+
+      // set values for where clause
+      for (int j = 0; j < primaryKeys.size(); j++, i++) {
+        s.setString(i + 1, rowToUpdate.get(primaryKeys.get(j)));
+      }
+      
+      s.executeUpdate();
+      
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+  
   /**
    * 
    * @return List of primary keys for table {@code tableName}

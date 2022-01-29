@@ -10,6 +10,7 @@ import java.awt.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame {
   private static final long serialVersionUID = -5148352205350265400L;
@@ -55,7 +56,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
 
     this.setLayout(new GridLayout());
     this.add(container);
-    this.setSize(1600, 960);
+    this.setSize(1600, 980);
     this.setVisible(true);
   }
   
@@ -77,6 +78,11 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame 
   public void executeDeleteQuery(String tableName, Map<String, String> rowToDelete) {
     queryProvider.executeDeleteQuery(tableName, rowToDelete);
     executeQueryOnTable(tableName);
+  }
+  @Override
+  public void executeUpdateQuery(String tableName, Map<String, String> rowToUpdate, Set<String> columnsToUpdate) {
+    queryProvider.executeUpdateQuery(tableName, rowToUpdate, columnsToUpdate);
+    //executeQueryOnTable(tableName);
   }
   
   @Override
