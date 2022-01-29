@@ -1,0 +1,8 @@
+-- nice
+select *
+from libro;
+
+-- hello
+select *
+from utente
+where u.id = 1;

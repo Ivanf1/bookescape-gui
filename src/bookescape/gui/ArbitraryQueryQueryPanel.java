@@ -27,7 +27,14 @@ public class ArbitraryQueryQueryPanel extends JPanel {
     this.runSelectedQueryBtn = new JButton("Esegui selezione");
     
     this.runQueryBtn.addActionListener((e) -> {
-      parent.executeQuery(queryInput.getText());
+      String queryString = "";
+      // skip comment lines
+      for (String line : queryInput.getText().split("\\n")) {
+        if (!line.substring(0, 2).equals("--")) {
+          queryString += line;
+        }
+      }
+      parent.executeQuery(queryString);
     });
 
     this.runSelectedQueryBtn.addActionListener((e) -> {
