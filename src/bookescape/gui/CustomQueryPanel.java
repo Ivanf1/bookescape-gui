@@ -20,16 +20,16 @@ public class CustomQueryPanel extends JPanel {
   private static final long serialVersionUID = -118480577143220801L;
 
   private JTree databaseTree;
-  private ICustomQueryFrame parent;
+  private ICustomQueryProvider queryProvider;
   private List<CustomQuery> customQueries;
 
-  public CustomQueryPanel(ICustomQueryFrame parent) {
-    this.parent = parent;
+  public CustomQueryPanel(ICustomQueryProvider queryProvider) {
+    this.queryProvider = queryProvider;
     initLayout();
   }
 
   private void initLayout() {
-    this.customQueries = parent.getCustomQuery();
+    this.customQueries = queryProvider.getCustomQuery();
     
     // create the root node
     DefaultMutableTreeNode root = new DefaultMutableTreeNode("Queries");
@@ -54,7 +54,7 @@ public class CustomQueryPanel extends JPanel {
         /* retrieve the node that was selected */
         Integer queryIndex = (Integer) node.getUserObject();
         /* React to the node selection. */
-        parent.executeCustomQuery(customQueries.get(queryIndex - 1).prettyPrint());
+        queryProvider.executeCustomQuery(customQueries.get(queryIndex - 1).prettyPrint());
       }
     });
 

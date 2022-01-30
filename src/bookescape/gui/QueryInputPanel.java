@@ -6,7 +6,7 @@ import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import java.awt.*;
 
-public class ArbitraryQueryQueryPanel extends JPanel {
+public class QueryInputPanel extends JPanel {
   private static final long serialVersionUID = 6553205131744170641L;
   
   private JTextArea queryInput;
@@ -14,10 +14,10 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   private JButton runSelectedQueryBtn;
   private JScrollPane queryInputScrollPane;
   
-  private IArbitraryQueryFrame parent;
+  private IArbitraryQueryProvider queryProvider;
   
-  public ArbitraryQueryQueryPanel(IArbitraryQueryFrame parent) {
-    this.parent = parent;
+  public QueryInputPanel(IArbitraryQueryProvider queryProvider) {
+    this.queryProvider = queryProvider;
     initLayout();
   }
   
@@ -27,6 +27,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
     this.runSelectedQueryBtn = new JButton("Esegui selezione");
     
     this.runQueryBtn.addActionListener((e) -> {
+      if (queryInput.getText().isBlank()) return;
       String queryString = "";
       // skip comment lines
       for (String line : queryInput.getText().split("\\n")) {
@@ -34,13 +35,13 @@ public class ArbitraryQueryQueryPanel extends JPanel {
           queryString += line;
         }
       }
-      parent.executeQuery(queryString);
+      queryProvider.executeQuery(queryString);
     });
 
     this.runSelectedQueryBtn.addActionListener((e) -> {
       String selectedText = queryInput.getSelectedText();
       if (selectedText != null) {
-        parent.executeQuery(selectedText);
+        queryProvider.executeQuery(selectedText);
       }
     });
     

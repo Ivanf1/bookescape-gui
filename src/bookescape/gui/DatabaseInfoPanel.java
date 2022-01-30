@@ -16,15 +16,15 @@ public class DatabaseInfoPanel extends JPanel {
   private static final long serialVersionUID = 8992421403854713193L;
 
   private JTree databaseTree;
-  private IArbitraryQueryFrame parent;
+  private IArbitraryQueryProvider queryProvider;
 
-  public DatabaseInfoPanel(IArbitraryQueryFrame parent) {
-    this.parent = parent;
+  public DatabaseInfoPanel(IArbitraryQueryProvider queryProvider) {
+    this.queryProvider = queryProvider;
     initLayout();
   }
 
   private void initLayout() {
-    List<String> databaseInfo = parent.getDatabaseInfo();
+    List<String> databaseInfo = queryProvider.getDatabaseInfo();
 
     // create the root node
     DefaultMutableTreeNode root = new DefaultMutableTreeNode(databaseInfo.get(0));
@@ -49,7 +49,7 @@ public class DatabaseInfoPanel extends JPanel {
         /* retrieve the node that was selected */
         String tableName = (String) node.getUserObject();
         /* React to the node selection. */
-        parent.executeQueryOnTable(tableName);
+        queryProvider.executeQueryOnTable(tableName);
       }
     });
 

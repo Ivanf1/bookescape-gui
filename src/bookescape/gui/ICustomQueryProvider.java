@@ -4,7 +4,7 @@ import java.util.List;
 
 import bookescape.persistence.CustomQuery;
 
-public interface ICustomQueryFrame {
+public interface ICustomQueryProvider {
   public void executeCustomQuery(String query);  
   public List<CustomQuery> getCustomQuery();
 

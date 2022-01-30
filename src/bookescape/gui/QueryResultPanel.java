@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-public class ArbitraryQueryQueryResultPanel extends JPanel {
+public class QueryResultPanel extends JPanel {
   private static final long serialVersionUID = 5129618759196085800L;
 
   private JTable resultTable;
@@ -30,8 +30,8 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
   private JPopupMenu rightClickPopup;
   private JButton cancelBtn;
   private JButton confirmBtn;
-
-  private IArbitraryQueryFrame parent;
+  
+  private IArbitraryQueryProvider queryProvider;
 
   private String tableName;
   
@@ -39,8 +39,8 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
   // key: row index, value: indexes of changed columns
   private Map<Integer, HashSet<String>> changedRowsMap = new HashMap<>();
 
-  public ArbitraryQueryQueryResultPanel(IArbitraryQueryFrame parent) {
-    this.parent = parent;
+  public QueryResultPanel(IArbitraryQueryProvider queryProvider) {
+    this.queryProvider = queryProvider;
     initLayout();
   }
 
@@ -59,7 +59,9 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
     buttonContainer.add(cancelBtn);
     buttonContainer.add(confirmBtn);
 
-    tableSP.setPreferredSize(new Dimension(1500, 400));
+    tableSP.setPreferredSize(new Dimension(1200, 400));
+    tableSP.setMaximumSize(new Dimension(1200, 400));
+    tableSP.setMinimumSize(new Dimension(1200, 400));
 
     rightClickPopup = new JPopupMenu();
     JMenuItem delete = new JMenuItem("Elimina");
@@ -72,7 +74,7 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
       confirmBtn.setEnabled(false);
       cancelBtn.setEnabled(false);
       // reset table
-      parent.executeQueryOnTable(tableName);
+      queryProvider.executeQueryOnTable(tableName);
       // clean changes hashset
       changedRowsMap.clear();
     });
@@ -90,11 +92,11 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
           colsMap.put(resultTable.getColumnName(i), (String) resultTable.getValueAt(entry.getKey(), i));
         }
         
-        parent.executeUpdateQuery(tableName, colsMap, entry.getValue());
+        queryProvider.executeUpdateQuery(tableName, colsMap, entry.getValue());
       }
       
       // refresh table
-      parent.executeQueryOnTable(tableName);
+      queryProvider.executeQueryOnTable(tableName);
     });
 
     // execute delete query
@@ -107,7 +109,7 @@ public class ArbitraryQueryQueryResultPanel extends JPanel {
         for (int i = 0; i < columnCount; i++) {
           colsMap.put(resultTable.getColumnName(i), (String) resultTable.getValueAt(resultTable.getSelectedRow(), i));
         }
-        parent.executeDeleteQuery(tableName, colsMap);
+        queryProvider.executeDeleteQuery(tableName, colsMap);
       }
     });
 

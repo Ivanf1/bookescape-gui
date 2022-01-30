@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public interface IArbitraryQueryFrame {
+public interface IArbitraryQueryProvider {
   public void executeQuery(String query);  
   public void executeQueryOnTable(String tableName);
   public void executeDeleteQuery(String tableName, Map<String, String> rowToDelete);

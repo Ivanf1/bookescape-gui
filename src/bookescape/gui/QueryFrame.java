@@ -5,7 +5,7 @@ import javax.swing.JPanel;
 
 import bookescape.persistence.CustomQuery;
 import bookescape.persistence.IDatabaseInfoProducer;
-import bookescape.persistence.QueryProvider;
+import bookescape.persistence.IQueryProvider;
 import bookescape.utils.ICustomQueryProducer;
 
 import java.awt.*;
@@ -14,26 +14,28 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame, ICustomQueryFrame {
+public class QueryFrame extends JFrame implements IArbitraryQueryProvider, ICustomQueryProvider, IFilterQueryProvider {
   private static final long serialVersionUID = -5148352205350265400L;
   
-  private ArbitraryQueryQueryPanel queryPanel;
-  private ArbitraryQueryQueryResultPanel resultPanel;
+  private QueryInputPanel queryPanel;
+  private QueryResultPanel resultPanel;
   private DatabaseInfoPanel databaseInfoPanel;
   private CustomQueryPanel customQueryPanel;
-  private QueryProvider queryProvider;
+  private QueryFilterPanel queryFilterPanel;
+  private IQueryProvider queryProvider;
   private IDatabaseInfoProducer databaseInfoProducer;
   private ICustomQueryProducer customQueryProducer;
   private JPanel container;
 
-  public ArbitraryQueryFrame(QueryProvider queryProvider, IDatabaseInfoProducer databaseInfoProducer, ICustomQueryProducer customQueryProducer) {
+  public QueryFrame(IQueryProvider queryProvider, IDatabaseInfoProducer databaseInfoProducer, ICustomQueryProducer customQueryProducer) {
     this.queryProvider = queryProvider;
     this.databaseInfoProducer = databaseInfoProducer;
     this.customQueryProducer = customQueryProducer;
-    this.resultPanel = new ArbitraryQueryQueryResultPanel(this);
-    this.queryPanel = new ArbitraryQueryQueryPanel(this);
+    this.resultPanel = new QueryResultPanel(this);
+    this.queryPanel = new QueryInputPanel(this);
     this.databaseInfoPanel = new DatabaseInfoPanel(this);
     this.customQueryPanel = new CustomQueryPanel(this);
+    this.queryFilterPanel = new QueryFilterPanel(this);
     
     initLayout();
   }
@@ -57,14 +59,17 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
 
     c.gridx = 1;
     c.gridy = 0;
-    c.fill = GridBagConstraints.BOTH;
     c.ipady = 0;
     container.add(queryPanel, c);
 
     c.gridx = 0;
     c.gridy = 1;
-    c.gridwidth = 3;
+    c.gridwidth = 2;
     container.add(resultPanel, c);
+
+    c.gridx = 2;
+    c.gridwidth = 1;
+    container.add(queryFilterPanel, c);
 
     this.setLayout(new GridLayout());
     this.add(container);
@@ -77,6 +82,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
   public void executeQuery(String query) {
     List<List<String>> res = queryProvider.executeQuery(query);
     resultPanel.updateTableName(null);
+    queryFilterPanel.updateTableName(null);
     if (res != null) {
       resultPanel.updateResultTable(res);
     }
@@ -87,6 +93,8 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
     List<List<String>> res = queryProvider.executeQueryOnTable(tableName);
     resultPanel.updateResultTable(res);
     resultPanel.updateTableName(tableName);
+    queryFilterPanel.updateFilters(res.get(0));
+    queryFilterPanel.updateTableName(tableName);
   }
   
   @Override
@@ -94,10 +102,10 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
     queryProvider.executeDeleteQuery(tableName, rowToDelete);
     executeQueryOnTable(tableName);
   }
+  
   @Override
   public void executeUpdateQuery(String tableName, Map<String, String> rowToUpdate, Set<String> columnsToUpdate) {
     queryProvider.executeUpdateQuery(tableName, rowToUpdate, columnsToUpdate);
-    //executeQueryOnTable(tableName);
   }
   
   @Override
@@ -113,5 +121,15 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
   @Override
   public void executeCustomQuery(String query) {
     queryPanel.setQueryInput(query);
+    queryFilterPanel.updateTableName(null);
   }
+  
+  @Override
+  public void executeFilterQuery(String tableName, Set<String> selectedColumns, Map<String, String> conditions) {
+    List<List<String>> res = queryProvider.executeFilterQuery(tableName, selectedColumns, conditions);
+    resultPanel.updateResultTable(res);
+    resultPanel.updateTableName(tableName);
+    queryFilterPanel.updateTableName(tableName);
+  }
+  
 }
