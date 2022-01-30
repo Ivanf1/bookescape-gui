@@ -22,7 +22,7 @@ public class ArbitraryQueryQueryPanel extends JPanel {
   }
   
   private void initLayout() {
-    this.queryInput = new JTextArea(24, 140);
+    this.queryInput = new JTextArea(24, 150);
     this.runQueryBtn = new JButton("Esegui");
     this.runSelectedQueryBtn = new JButton("Esegui selezione");
     

@@ -54,7 +54,7 @@ public class CustomQueryPanel extends JPanel {
         /* retrieve the node that was selected */
         Integer queryIndex = (Integer) node.getUserObject();
         /* React to the node selection. */
-        parent.executeCustomQuery(customQueries.get(queryIndex).prettyPrint());
+        parent.executeCustomQuery(customQueries.get(queryIndex - 1).prettyPrint());
       }
     });
 
@@ -62,13 +62,13 @@ public class CustomQueryPanel extends JPanel {
 
     DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
 
-    ImageIcon rootIcon = createImageIcon("images/database.png");
+    ImageIcon rootIcon = createImageIcon("images/flash.png");
     Image rootImage = rootIcon.getImage();
     Image newRootImg = rootImage.getScaledInstance(12, 12, java.awt.Image.SCALE_SMOOTH);
     rootIcon = new ImageIcon(newRootImg);
     renderer.setOpenIcon(rootIcon);
 
-    ImageIcon leafIcon = createImageIcon("images/table.png");
+    ImageIcon leafIcon = createImageIcon("images/query.png");
     Image leafImage = leafIcon.getImage();
     Image newLeafImg = leafImage.getScaledInstance(12, 12, java.awt.Image.SCALE_SMOOTH);
     leafIcon = new ImageIcon(newLeafImg);

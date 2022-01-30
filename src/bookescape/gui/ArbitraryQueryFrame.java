@@ -44,6 +44,7 @@ public class ArbitraryQueryFrame extends JFrame implements IArbitraryQueryFrame,
     
     GridBagConstraints c = new GridBagConstraints();
     
+    c.fill = GridBagConstraints.BOTH;
     c.gridx = 0;
     c.gridy = 0;
     c.ipady = 20;

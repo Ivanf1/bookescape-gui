@@ -31,7 +31,8 @@ public class CustomQueryLoader implements ICustomQueryProducer {
         }
 
         // skip empty lines
-        if (line.equals("")) continue;
+        if (line.equals(""))
+          continue;
 
         // check if line is a comment
         if (line.substring(0, 2).equals("--")) {
@@ -43,10 +44,18 @@ public class CustomQueryLoader implements ICustomQueryProducer {
       return queryList;
     } catch (IOException e) {
       e.printStackTrace();
+    } finally {
+      if (inputStream != null) {
+        try {
+          inputStream.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
     return null;
   }
-  
+
   @Override
   public List<CustomQuery> getCustomQueries() {
     return readFromInputStream();
