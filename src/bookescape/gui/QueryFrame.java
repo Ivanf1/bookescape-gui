@@ -132,4 +132,9 @@ public class QueryFrame extends JFrame implements IArbitraryQueryProvider, ICust
     queryFilterPanel.updateTableName(tableName);
   }
   
+  @Override
+  public void executeInsertQuery(String tableName, Map<String, String> rowToInsert) {
+    queryProvider.executeInsertQuery(tableName, rowToInsert);
+  }
+
 }

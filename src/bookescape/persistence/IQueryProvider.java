@@ -10,5 +10,6 @@ public interface IQueryProvider {
   void executeDeleteQuery(String tableName, Map<String, String> rowToDelete);
   void executeUpdateQuery(String tableName, Map<String, String> rowToUpdate, Set<String> columnsToUpdate);
   List<List<String>> executeFilterQuery(String tableName, Set<String> selectedColumns, Map<String, String> conditions);
+  public void executeInsertQuery(String tableName, Map<String, String> rowToInsert);
 
 }

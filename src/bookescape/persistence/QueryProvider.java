@@ -161,6 +161,47 @@ public class QueryProvider implements IQueryProvider {
     }
   }
 
+  @Override
+  public void executeInsertQuery(String tableName, Map<String, String> rowToInsert) {
+    Connection connection = DatabaseDriverConnection.getConnection();
+    try {
+      List<String> primaryKeys = getPrimaryKeysFromTable(connection, tableName);
+      if (primaryKeys == null)
+        return;
+
+      // create a template query
+      String query = "INSERT INTO " + tableName;
+
+      // make columns list
+      List<String> columns = new ArrayList<>();
+      for (var entry : rowToInsert.entrySet()) {
+        columns.add(entry.getKey());
+      }
+      String columnNames = "(".concat(String.join(", ", columns)).concat(")");
+      query = query.concat(columnNames).concat(" VALUES ");
+      
+      // should check for not null?
+
+      // make values list
+      List<String> values = new ArrayList<>();
+      for (var entry : rowToInsert.entrySet()) {
+        values.add(entry.getValue());
+      }
+      String valuesV = "(".concat(String.join(", ", values)).concat(")");
+      query = query.concat(valuesV);
+
+      // create prepared statement
+      PreparedStatement s = connection.prepareStatement(query);
+      System.out.println(query);
+
+      s.executeUpdate();
+      
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    
+  }
   /**
    * 
    * @return List of primary keys for table {@code tableName}

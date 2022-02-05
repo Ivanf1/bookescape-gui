@@ -28,12 +28,18 @@ public class QueryResultPanel extends JPanel {
   private DefaultTableModel dtm;
   private JScrollPane tableSP;
   private JPopupMenu rightClickPopup;
+  private JButton insertBtn;
   private JButton cancelBtn;
   private JButton confirmBtn;
   
   private IArbitraryQueryProvider queryProvider;
 
   private String tableName;
+  private static enum EditingState {
+    UPDATE,
+    INSERT
+  }
+  private EditingState editingState = null;
   
   // keeps track of all the changed columns for every changed row
   // key: row index, value: indexes of changed columns
@@ -50,12 +56,15 @@ public class QueryResultPanel extends JPanel {
     this.dtm = new DefaultTableModel(0, 0);
     this.resultTable.setModel(dtm);
 
+    this.insertBtn = new JButton("Nuovo");
     this.cancelBtn = new JButton("Annulla");
     this.confirmBtn = new JButton("Conferma");
+    this.insertBtn.setMargin(new Insets(5, 20, 5, 20));
     this.cancelBtn.setMargin(new Insets(5, 20, 5, 20));
     this.confirmBtn.setMargin(new Insets(5, 20, 5, 20));
     JPanel buttonContainer = new JPanel();
     buttonContainer.setLayout(new FlowLayout(FlowLayout.RIGHT));
+    buttonContainer.add(insertBtn);
     buttonContainer.add(cancelBtn);
     buttonContainer.add(confirmBtn);
 
@@ -67,12 +76,33 @@ public class QueryResultPanel extends JPanel {
     JMenuItem delete = new JMenuItem("Elimina");
     rightClickPopup.add(delete);
 
+    insertBtn.setEnabled(false);
     cancelBtn.setEnabled(false);
     confirmBtn.setEnabled(false);
+
+    this.insertBtn.addActionListener((e) -> {
+      editingState = EditingState.INSERT;
+      insertBtn.setEnabled(false);
+      cancelBtn.setEnabled(true);
+      confirmBtn.setEnabled(true);
+
+      DefaultTableModel dtm = (DefaultTableModel) resultTable.getModel();
+
+      dtm.addRow((Object[]) null);
+      
+      resultTable.setEditingColumn(0);
+      resultTable.setColumnSelectionInterval(0, 0);
+      resultTable.setRowSelectionInterval(dtm.getRowCount() - 1 , dtm.getRowCount() - 1);
+      resultTable.requestFocus();
+    });
     
     this.cancelBtn.addActionListener((e) -> {
+      if (editingState == EditingState.INSERT) {
+        dtm.removeRow(dtm.getRowCount() - 1);
+      }
       confirmBtn.setEnabled(false);
       cancelBtn.setEnabled(false);
+      editingState = null;
       // reset table
       queryProvider.executeQueryOnTable(tableName);
       // clean changes hashset
@@ -82,21 +112,40 @@ public class QueryResultPanel extends JPanel {
     this.confirmBtn.addActionListener((e) -> {
       confirmBtn.setEnabled(false);
       cancelBtn.setEnabled(false);
+      insertBtn.setEnabled(false);
+      
+      if (editingState == EditingState.INSERT) {
+        int columnCount = resultTable.getColumnCount();
+        int row = resultTable.getRowCount() - 1;
 
-      // execute update query for every changed row
-      int columnCount = resultTable.getColumnCount();
-      for (var entry : changedRowsMap.entrySet()) {
         Map<String, String> colsMap = new HashMap<>();
-
         for (int i = 0; i < columnCount; i++) {
-          colsMap.put(resultTable.getColumnName(i), (String) resultTable.getValueAt(entry.getKey(), i));
+          colsMap.put(resultTable.getColumnName(i), (String) resultTable.getValueAt(row, i));
+        }
+        editingState = null;
+
+        queryProvider.executeInsertQuery(tableName, colsMap);
+        // refresh table
+        queryProvider.executeQueryOnTable(tableName);
+
+      } else if (editingState == EditingState.UPDATE) {
+        editingState = null;
+        // execute update query for every changed row
+        int columnCount = resultTable.getColumnCount();
+        for (var entry : changedRowsMap.entrySet()) {
+          Map<String, String> colsMap = new HashMap<>();
+
+          for (int i = 0; i < columnCount; i++) {
+            colsMap.put(resultTable.getColumnName(i), (String) resultTable.getValueAt(entry.getKey(), i));
+          }
+          
+          queryProvider.executeUpdateQuery(tableName, colsMap, entry.getValue());
         }
         
-        queryProvider.executeUpdateQuery(tableName, colsMap, entry.getValue());
+        // refresh table
+        queryProvider.executeQueryOnTable(tableName);
       }
-      
-      // refresh table
-      queryProvider.executeQueryOnTable(tableName);
+
     });
 
     // execute delete query
@@ -139,22 +188,32 @@ public class QueryResultPanel extends JPanel {
     // from user input
     resultTable.getModel().addTableModelListener(new TableModelListener() {
       public void tableChanged(TableModelEvent evt) {
-        int colIdx = evt.getColumn();
-        // if all columns changed ignore the event
-        if (colIdx == TableModelEvent.ALL_COLUMNS) return;
-        cancelBtn.setEnabled(true);
-        confirmBtn.setEnabled(true);
-
-        // add edited row with changed columns
-        HashSet<String> columnsForEditedRow = changedRowsMap.get(evt.getFirstRow());
-        // if first time editing this row, initialize Set
-        if (columnsForEditedRow == null) {
-          columnsForEditedRow = new HashSet<String>();
+        if (editingState == EditingState.INSERT) {
+          // if current state is insert and the row that changed
+          // is not the last (new row) then delete last row
+          if (evt.getFirstRow() != dtm.getRowCount() - 1) {
+            editingState = EditingState.UPDATE;
+            dtm.removeRow(dtm.getRowCount() - 1);
+          }
         }
-        // add current editing column to set
-        columnsForEditedRow.add(resultTable.getColumnName(evt.getColumn()));
-        // add set to corresponding row in map
-        changedRowsMap.put(evt.getFirstRow(), columnsForEditedRow);
+        if (editingState == EditingState.UPDATE) {
+          int colIdx = evt.getColumn();
+          // if all columns changed ignore the event
+          if (colIdx == TableModelEvent.ALL_COLUMNS) return;
+          cancelBtn.setEnabled(true);
+          confirmBtn.setEnabled(true);
+
+          // add edited row with changed columns
+          HashSet<String> columnsForEditedRow = changedRowsMap.get(evt.getFirstRow());
+          // if first time editing this row, initialize Set
+          if (columnsForEditedRow == null) {
+            columnsForEditedRow = new HashSet<String>();
+          }
+          // add current editing column to set
+          columnsForEditedRow.add(resultTable.getColumnName(evt.getColumn()));
+          // add set to corresponding row in map
+          changedRowsMap.put(evt.getFirstRow(), columnsForEditedRow);
+        }
       }
     });
 
@@ -179,6 +238,7 @@ public class QueryResultPanel extends JPanel {
 
   public void updateTableName(String tableName) {
     this.tableName = tableName;
+    this.insertBtn.setEnabled(tableName != null);
   }
 
 }
